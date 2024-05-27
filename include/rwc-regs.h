@@ -4,7 +4,7 @@
  * @brief Vehicle I2C registers. Check main document fore more.
  *
  */
-enum RWCRegisters
+enum RWC_REGISTER
 {
     STATE,
     KEEP_ALIVE,
@@ -25,7 +25,7 @@ enum RWCRegisters
  *
  */
 
-enum RWCRegistersSize
+enum RWC_REG_SIZE
 {
     STATE_SIZE = 1,
     KEEP_ALIVE_SIZE = 1,
@@ -46,7 +46,7 @@ enum RWCRegistersSize
  *
  */
 
-enum RWCState
+enum RWC_STATE
 {
     IDLE,
     STAB
@@ -57,7 +57,7 @@ enum RWCState
  *
  */
 
-enum RWCOrientationMode
+enum RWC_ORIENTATION_MODE
 {
     ORIENTATION_HOLD,
     SPEED_HOLD
@@ -68,7 +68,7 @@ enum RWCOrientationMode
  *
  */
 
-enum RWCNewData
+enum RWC_NEW_DATA
 {
     DATA_CLEAR,
     NEW_ORIENTATION = 1 << 0,
@@ -81,7 +81,7 @@ enum RWCNewData
  *
  */
 
-enum RWCErrors
+enum RWC_ERROR
 {
     ERR_CLEAR,
     CRC_ERR = 1 << 0,

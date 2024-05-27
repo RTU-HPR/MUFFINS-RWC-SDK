@@ -76,3 +76,72 @@ RWC_COMM_ERR RWC_SDK::_writeFloatRegister(uint8_t reg, float *data)
     memcpy(buffer, data, 4);
     return _writeRegister(reg, buffer, 4);
 }
+
+RWC_COMM_ERR RWC_SDK::_checkWriteSuccess()
+{
+    bool buffer;
+    RWC_COMM_ERR res = error(&buffer, nullptr);
+    RWC_COMM_ERR_CHECK(res);
+    if (buffer)
+    {
+        return RWC_ERR_CRC;
+    }
+    return res;
+}
+
+RWC_COMM_ERR RWC_SDK::state(RWC_STATE *state)
+{
+    uint8_t buffer;
+    RWC_COMM_ERR res = _readRegister(RWC_REGISTER::STATE, &buffer, 1);
+    RWC_COMM_ERR_CHECK(res);
+    *state = static_cast<RWC_STATE>(buffer);
+    return res;
+}
+
+RWC_COMM_ERR RWC_SDK::state(RWC_STATE state)
+{
+    uint8_t buffer = static_cast<uint8_t>(state);
+    RWC_COMM_ERR res = _writeRegister(RWC_REGISTER::STATE, &buffer, 1);
+    RWC_COMM_ERR_CHECK(res);
+    return _checkWriteSuccess();
+}
+
+RWC_COMM_ERR RWC_SDK::heartbeat()
+{
+    uint8_t buffer = 0;
+    RWC_COMM_ERR res = _writeRegister(RWC_REGISTER::KEEP_ALIVE, &buffer, 1);
+    RWC_COMM_ERR_CHECK(res);
+    return _checkWriteSuccess();
+}
+
+RWC_COMM_ERR RWC_SDK::orientationMode(RWC_ORIENTATION_MODE *mode)
+{
+    uint8_t buffer;
+    RWC_COMM_ERR res = _readRegister(RWC_REGISTER::ORIENTATION_MODE, &buffer, 1);
+    RWC_COMM_ERR_CHECK(res);
+    *mode = static_cast<RWC_ORIENTATION_MODE>(buffer);
+    return res;
+}
+
+RWC_COMM_ERR RWC_SDK::orientationMode(RWC_ORIENTATION_MODE mode)
+{
+    uint8_t buffer = static_cast<uint8_t>(mode);
+    RWC_COMM_ERR res = _writeRegister(RWC_REGISTER::ORIENTATION_MODE, &buffer, 1);
+    RWC_COMM_ERR_CHECK(res);
+    return _checkWriteSuccess();
+}
+
+RWC_COMM_ERR RWC_SDK::error(uint8_t *error)
+{
+    return _readRegister(RWC_REGISTER::ERROR, error, 1);
+}
+
+RWC_COMM_ERR RWC_SDK::error(bool *chckSum, bool *motorRunaway)
+{
+    uint8_t buffer;
+    RWC_COMM_ERR res = error(&buffer);
+    RWC_COMM_ERR_CHECK(res);
+    *chckSum = static_cast<bool>(buffer & 0x01);
+    *motorRunaway = static_cast<bool>(buffer & 0x02);
+    return res;
+}

@@ -12,6 +12,10 @@ enum RWC_COMM_ERR
     RWC_ERR_CRC = 1,
 };
 
+#define RWC_COMM_ERR_CHECK(err) \
+    if (err != RWC_ERR_NONE)    \
+    return err
+
 class RWC_SDK : public Component_Base
 {
 private:
@@ -23,37 +27,38 @@ private:
     RWC_COMM_ERR _writeRegister(uint8_t reg, uint8_t *data, uint8_t size);
     RWC_COMM_ERR _readFloatRegister(uint8_t reg, float *data);
     RWC_COMM_ERR _writeFloatRegister(uint8_t reg, float *data);
+    RWC_COMM_ERR _checkWriteSuccess(void);
 
 public:
     RWC_SDK(TwoWire *i2cHandle, uint8_t address);
 
-    RWCState state();
+    RWC_COMM_ERR state(RWC_STATE *state);
+    RWC_COMM_ERR state(RWC_STATE state);
 
-    void state(RWCState state);
-    void heartbeat();
+    RWC_COMM_ERR heartbeat();
 
-    RWCOrientationMode orientationMode();
-    void orientationMode(RWCOrientationMode mode);
+    RWC_COMM_ERR orientationMode(RWC_ORIENTATION_MODE *mode);
+    RWC_COMM_ERR orientationMode(RWC_ORIENTATION_MODE mode);
 
-    float orientationSetpoint();
-    void orientationSetpoint(float orientation);
+    RWC_COMM_ERR orientationSetpoint(float *orientation);
+    RWC_COMM_ERR orientationSetpoint(float orientation);
 
-    float speedSetpoint();
-    void speedSetpoint(float speed);
+    RWC_COMM_ERR speedSetpoint(float *speed);
+    RWC_COMM_ERR speedSetpoint(float speed);
 
-    float orientation();
+    RWC_COMM_ERR orientation(float *orientation);
 
-    float angularSpeed();
+    RWC_COMM_ERR angularSpeed(float *speed);
 
-    float motorSpeed();
+    RWC_COMM_ERR motorSpeed(float *speed);
 
-    uint8_t calibrationStatus();
-    void calibrationStatus(uint8_t *sys, uint8_t *gyro, uint8_t *accel, uint8_t *mag);
+    RWC_COMM_ERR calibrationStatus(uint8_t *calibration);
+    RWC_COMM_ERR calibrationStatus(uint8_t *sys, uint8_t *gyro, uint8_t *accel, uint8_t *mag);
 
-    float motorTemp();
+    RWC_COMM_ERR motorTemp(float *temp);
 
-    float batteryVoltage();
+    RWC_COMM_ERR batteryVoltage(float *voltage);
 
-    uint8_t error();
-    void error(uint8_t *crcErr, uint8_t *motorRunaway);
+    RWC_COMM_ERR error(uint8_t *err);
+    RWC_COMM_ERR error(bool *chckSum, bool *motorRunaway);
 };
