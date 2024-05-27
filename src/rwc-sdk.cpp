@@ -57,7 +57,7 @@ RWC_COMM_ERR RWC_SDK::_writeRegister(uint8_t reg, uint8_t *data, uint8_t size)
 
     delete[] buffer;
 
-    return RWC_ERR_NONE;
+    return _checkWriteSuccess();
 }
 
 RWC_COMM_ERR RWC_SDK::_readFloatRegister(uint8_t reg, float *data)
@@ -102,16 +102,14 @@ RWC_COMM_ERR RWC_SDK::state(RWC_STATE state)
 {
     uint8_t buffer = static_cast<uint8_t>(state);
     RWC_COMM_ERR res = _writeRegister(RWC_REGISTER::STATE, &buffer, 1);
-    RWC_COMM_ERR_CHECK(res);
-    return _checkWriteSuccess();
+    return res;
 }
 
 RWC_COMM_ERR RWC_SDK::heartbeat()
 {
     uint8_t buffer = 0;
     RWC_COMM_ERR res = _writeRegister(RWC_REGISTER::KEEP_ALIVE, &buffer, 1);
-    RWC_COMM_ERR_CHECK(res);
-    return _checkWriteSuccess();
+    return res;
 }
 
 RWC_COMM_ERR RWC_SDK::orientationMode(RWC_ORIENTATION_MODE *mode)
@@ -127,8 +125,69 @@ RWC_COMM_ERR RWC_SDK::orientationMode(RWC_ORIENTATION_MODE mode)
 {
     uint8_t buffer = static_cast<uint8_t>(mode);
     RWC_COMM_ERR res = _writeRegister(RWC_REGISTER::ORIENTATION_MODE, &buffer, 1);
+    return res;
+}
+
+RWC_COMM_ERR RWC_SDK::orientationSetpoint(float *orientation)
+{
+    return _readFloatRegister(RWC_REGISTER::ORIENTATION_SETPOINT, orientation);
+}
+
+RWC_COMM_ERR RWC_SDK::orientationSetpoint(float orientation)
+{
+    return _writeFloatRegister(RWC_REGISTER::ORIENTATION_SETPOINT, &orientation);
+}
+
+RWC_COMM_ERR RWC_SDK::speedSetpoint(float *speed)
+{
+    return _readFloatRegister(RWC_REGISTER::SPEED_SETPOINT, speed);
+}
+
+RWC_COMM_ERR RWC_SDK::speedSetpoint(float speed)
+{
+    return _writeFloatRegister(RWC_REGISTER::SPEED_SETPOINT, &speed);
+}
+
+RWC_COMM_ERR RWC_SDK::orientation(float *orientation)
+{
+    return _readFloatRegister(RWC_REGISTER::ORIENTATION, orientation);
+}
+
+RWC_COMM_ERR RWC_SDK::angularSpeed(float *speed)
+{
+    return _readFloatRegister(RWC_REGISTER::ANG_SPEED, speed);
+}
+
+RWC_COMM_ERR RWC_SDK::motorSpeed(float *speed)
+{
+    return _readFloatRegister(RWC_REGISTER::MOTOR_SPEED, speed);
+}
+
+RWC_COMM_ERR RWC_SDK::calibrationStatus(uint8_t *calibration)
+{
+    return _readRegister(RWC_REGISTER::CALIBRATION_STATUS, calibration, 1);
+}
+
+RWC_COMM_ERR RWC_SDK::calibrationStatus(uint8_t *sys, uint8_t *gyro, uint8_t *accel, uint8_t *mag)
+{
+    uint8_t buffer;
+    RWC_COMM_ERR res = calibrationStatus(&buffer);
     RWC_COMM_ERR_CHECK(res);
-    return _checkWriteSuccess();
+    *sys = (buffer & 0b11000000) >> 6;
+    *gyro = (buffer & 0b00110000) >> 4;
+    *accel = (buffer & 0b00001100) >> 2;
+    *mag = buffer & 0b00000011;
+    return res;
+}
+
+RWC_COMM_ERR RWC_SDK::motorTemp(float *temp)
+{
+    return _readFloatRegister(RWC_REGISTER::MOTOR_TEMP, temp);
+}
+
+RWC_COMM_ERR RWC_SDK::batteryVoltage(float *voltage)
+{
+    return _readFloatRegister(RWC_REGISTER::BATTERY_VOLTAGE, voltage);
 }
 
 RWC_COMM_ERR RWC_SDK::error(uint8_t *error)
