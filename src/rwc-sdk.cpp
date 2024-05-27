@@ -16,15 +16,15 @@ void RWC_SDK::_applyChecksum(const uint8_t *data, uint8_t size, uint8_t *checksu
     memcpy(checksum + size, &chck, 2);
 }
 
-void RWC_SDK::_readRegister(uint8_t reg, uint8_t *data, uint8_t size)
-{   
+RWC_COMM_ERR RWC_SDK::_readRegister(uint8_t reg, uint8_t *data, uint8_t size)
+{
     uint8_t *buffer = new uint8_t[size + 2];
 
     _i2cHandle->beginTransmission(_address);
     _i2cHandle->write(reg);
     _i2cHandle->endTransmission();
     _i2cHandle->requestFrom(_address, size);
-    
+
     for (int i = 0; i < size + 2; i++)
     {
         buffer[i] = _i2cHandle->read();
@@ -33,14 +33,16 @@ void RWC_SDK::_readRegister(uint8_t reg, uint8_t *data, uint8_t size)
     if (Checksum_CCITT_16::verify(buffer, size + 2))
     {
         memcpy(data, buffer, size);
+        return RWC_ERR_NONE;
     }
     else
+        ;
     {
-        return;
+        return RWC_ERR_CRC;
     }
 }
 
-void RWC_SDK::_writeRegister(uint8_t reg, uint8_t *data, uint8_t size)
+RWC_COMM_ERR RWC_SDK::_writeRegister(uint8_t reg, uint8_t *data, uint8_t size)
 {
     uint8_t *buffer = new uint8_t[size + 2];
     _applyChecksum(data, size, buffer);
@@ -52,20 +54,25 @@ void RWC_SDK::_writeRegister(uint8_t reg, uint8_t *data, uint8_t size)
         _i2cHandle->write(buffer[i]);
     }
     _i2cHandle->endTransmission();
-    
+
     delete[] buffer;
+
+    return RWC_ERR_NONE;
 }
 
-void RWC_SDK::_readFloatRegister(uint8_t reg, float *data)
+RWC_COMM_ERR RWC_SDK::_readFloatRegister(uint8_t reg, float *data)
 {
     uint8_t buffer[4];
-    _readRegister(reg, buffer, 4);
+    RWC_COMM_ERR res = _readRegister(reg, buffer, 4);
+    if (res != RWC_ERR_NONE)
+        return res;
     memcpy(data, buffer, 4);
+    return res;
 }
 
-void RWC_SDK::_writeFloatRegister(uint8_t reg, float *data)
+RWC_COMM_ERR RWC_SDK::_writeFloatRegister(uint8_t reg, float *data)
 {
     uint8_t buffer[4];
     memcpy(buffer, data, 4);
-    _writeRegister(reg, buffer, 4);
+    return _writeRegister(reg, buffer, 4);
 }
